@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineMe — Reverse Movie Universe</title>
+<meta name="description" content="CineMe: a cinematic reverse-review experience for movie lovers. Search any movie, flip its reputation, get a brutally unserious review.">
+<meta property="og:title" content="CineMe — Reverse Movie Universe">
+<meta property="og:description" content="Search any movie and get a brutally unserious, algorithmically-flipped review.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%9E%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#090b10;--panel:#11151d;--panel2:#171c26;--line:#283140;
+  --text:#aab4c4;--white:#f7f9fc;--accent:#ff6b35;--accent2:#ffd166;
+  --green:#39e58c;--red:#ff5d73;--shadow:0 20px 60px #0008;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif;
+background:radial-gradient(circle at 10% 0%,#2b1420 0,transparent 35%),radial-gradient(circle at 90% 20%,#17233b 0,transparent 32%),var(--bg);color:var(--text);min-height:100vh}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{max-width:1200px;margin:auto;padding:22px}
+nav{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:10px 0 26px}
+.brand{font-size:1.35rem;font-weight:900;color:var(--white);letter-spacing:-.5px}
+.brand span{color:var(--accent)}
+.navlinks{display:flex;gap:18px}
+.navlinks button{background:none;border:0;color:var(--text);font-weight:700}
+.navlinks button:hover{color:#fff}
+.hero{display:grid;grid-template-columns:1.25fr .75fr;gap:28px;align-items:center;padding:55px 0 35px}
+.eyebrow{color:var(--accent2);font-weight:900;text-transform:uppercase;letter-spacing:2px;font-size:.78rem}
+.techrow{display:flex;flex-wrap:wrap;gap:8px}
+.techchip{border:1px solid var(--line);background:#ffffff05;padding:5px 10px;border-radius:8px;font-size:.72rem;color:#8b97ab}
+.about{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:10px 0 40px}
+.about-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.about-card h3{color:#fff;margin:0 0 8px;font-size:1rem}
+.about-card p{margin:0;font-size:.88rem;line-height:1.6;color:#8b97ab}
+@media(max-width:900px){.about{grid-template-columns:1fr}}
+.analyzing{display:flex;align-items:center;gap:10px;color:var(--accent2);font-weight:800;padding:6px 0}
+.spinner{width:16px;height:16px;border-radius:50%;border:3px solid #ffffff22;border-top-color:var(--accent2);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shareBtn{border:1px solid var(--line);background:#ffffff08;color:#fff;border-radius:9px;padding:9px 14px;font-size:.8rem;font-weight:800}
+.shareBtn:hover{background:#fff;color:#111}
+h1{font-size:clamp(3rem,7vw,6.3rem);line-height:.9;margin:12px 0 22px;color:var(--white);letter-spacing:-5px}
+.hero p{font-size:1.08rem;max-width:650px;line-height:1.7}
+.searchbox{display:flex;gap:10px;margin-top:28px}
+.searchbox input{flex:1;background:#0c1017;border:1px solid var(--line);color:#fff;padding:17px 18px;border-radius:13px;outline:none}
+.searchbox input:focus{border-color:var(--accent)}
+.primary{border:0;border-radius:13px;padding:0 23px;background:linear-gradient(135deg,#ff7a3d,#ff4d5f);color:#fff;font-weight:900;box-shadow:0 10px 30px #ff5d7330}
+.hero-card{background:linear-gradient(145deg,#1a202c,#0e1219);border:1px solid var(--line);border-radius:28px;padding:26px;box-shadow:var(--shadow);transform:rotate(2deg)}
+.poster{height:300px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(145deg,#392033,#121827);font-size:5rem;position:relative;overflow:hidden}
+.poster:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 45%,#000b)}
+.poster-title{position:absolute;z-index:2;bottom:22px;left:22px;color:#fff;font-size:1.5rem;font-weight:900}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:20px 0 35px}
+.stat{background:#ffffff06;border:1px solid var(--line);padding:17px;border-radius:15px}
+.stat b{display:block;color:#fff;font-size:1.4rem}.stat span{font-size:.78rem}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 20px}
+.filter{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:10px 14px;border-radius:999px;font-weight:800}
+.filter.active,.filter:hover{background:#fff;color:#111}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:25px 0 14px}
+h2{color:#fff;margin:0;font-size:1.65rem}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:15px}
+.movie{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:.2s;position:relative}
+.movie:hover{transform:translateY(-5px);border-color:#ffffff35;box-shadow:0 15px 35px #0007}
+.cover{height:220px;display:grid;place-items:center;font-size:3rem;background:linear-gradient(145deg,var(--c1),var(--c2));position:relative}
+.cover small{position:absolute;left:10px;top:10px;background:#0009;color:#fff;padding:5px 8px;border-radius:8px;font-size:.7rem}
+.movie-info{padding:13px}.movie-info h3{color:#fff;margin:0 0 5px;font-size:1rem}
+.meta{font-size:.75rem;color:#78869a}
+.movie-actions{display:flex;gap:7px;margin-top:11px}
+.iconbtn{flex:1;border:1px solid var(--line);background:#ffffff06;color:#fff;border-radius:9px;padding:8px;font-size:.78rem}
+.iconbtn:hover{background:#fff;color:#111}
+#result{display:none;margin:32px 0;background:linear-gradient(145deg,#171d28,#0f131b);border:1px solid #354052;border-radius:25px;padding:25px;box-shadow:var(--shadow)}
+.result-top{display:grid;grid-template-columns:180px 1fr;gap:25px}
+.result-poster{height:250px;border-radius:16px;display:grid;place-items:center;font-size:4rem;background:linear-gradient(145deg,var(--c1),var(--c2))}
+.badge{display:inline-block;padding:7px 10px;border-radius:8px;background:#ff6b3518;color:var(--accent2);font-size:.75rem;font-weight:900}
+.result-title{font-size:2.3rem;color:#fff;margin:9px 0 3px}
+.score-row{display:flex;align-items:center;gap:16px;margin:20px 0}
+.reverse-score{font-size:2.4rem;color:var(--accent);font-weight:1000}
+.stars{letter-spacing:2px}
+.review{border-left:4px solid var(--accent);padding:5px 0 5px 16px;color:#e1e6ef;line-height:1.75;font-size:1.03rem}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:17px}.tag{background:#fff08;border:1px solid var(--line);padding:6px 9px;border-radius:999px;font-size:.75rem}
+.empty{padding:45px;text-align:center;border:1px dashed var(--line);border-radius:18px}
+footer{border-top:1px solid var(--line);margin-top:55px;padding:30px 0;color:#718096;font-size:.82rem;display:flex;justify-content:space-between}
+.toast{position:fixed;right:20px;bottom:20px;background:#fff;color:#111;padding:13px 17px;border-radius:12px;font-weight:800;box-shadow:var(--shadow);display:none;z-index:10}
+@media(max-width:900px){.grid{grid-template-columns:repeat(3,1fr)}.hero{grid-template-columns:1fr}.hero-card{display:none}}
+@media(max-width:620px){.app{padding:15px}.navlinks{display:none}.hero{padding-top:25px}h1{letter-spacing:-3px}.searchbox{flex-direction:column}.primary{height:52px}.stats{grid-template-columns:repeat(2,1fr)}.techrow{justify-content:center}.grid{grid-template-columns:repeat(2,1fr)}.cover{height:180px}.result-top{grid-template-columns:1fr}.result-poster{height:210px}footer{display:block}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav>
+  <div class="brand">Cine<span>Me</span> 🎬</div>
+  <div class="navlinks">
+    <button onclick="scrollToSection('discover')">Discover</button>
+    <button onclick="showFavorites()">Favorites</button>
+    <button onclick="randomMovie()">Surprise me</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div>
+  <div class="eyebrow">The reverse-review engine</div>
+    <h1>Movies.<br>Judged<br>wrong.</h1>
+    <p>Search a movie, flip its reputation, and get a brutally unserious review nobody asked for. 119 movies. Zero critical thinking. Maximum chaos.</p>
+    <div class="searchbox">
+      <input id="movieInput" list="movieNames" placeholder="Search any movie in the demo catalogue…" onkeydown="if(event.key==='Enter')generateReview()">
+      <datalist id="movieNames"></datalist>
+      <button class="primary" onclick="generateReview()">Reverse it →</button>
+    </div>
+  </div>
+  <div class="hero-card">
+    <div class="poster"><span>🎞️</span><div class="poster-title">THE WRONG OPINION</div></div>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stat"><b id="movieCount">0</b><span>Movies in catalogue</span></div>
+  <div class="stat"><b>∞</b><span>Bad opinions</span></div>
+  <div class="stat"><b>5★</b><span>Maximum chaos</span></div>
+  <div class="stat"><b id="favCount">0</b><span>Your favorites</span></div>
+  <div class="stat"><b id="genreCount">0</b><span>Genres covered</span></div>
+</div>
+
+<div class="about">
+  <div class="about-card">
+    <h3>The problem</h3>
+    <p>Review scores rarely capture how a film actually feels to talk about with friends — the running jokes, the plot holes, the "why didn't they just call someone" moments.</p>
+  </div>
+  <div class="about-card">
+    <h3>The approach</h3>
+    <p>CineMe pairs each film's real reputation with a randomly generated, deliberately unserious counter-review — a lightweight way to explore a multilingual catalogue through humor instead of star ratings alone.</p>
+  </div>
+  <div class="about-card">
+    <h3>What's under the hood</h3>
+    <p>A single-file client-side app: no backend, no build step. Favorites persist locally, filtering runs client-side across genre and language, and results are shareable with one click.</p>
+  </div>
+</div>
+
+<section id="discover">
+<div class="section-head"><h2>Discover the catalogue</h2><span id="showing" class="meta"></span></div>
+<div class="toolbar" id="filters"></div>
+<div style="font-size:.72rem;color:#5c6779;font-weight:800;margin:0 0 8px">Filter by language</div>
+<div class="toolbar" id="langFilters"></div>
+<div class="grid" id="movieGrid"></div>
+</section>
+
+<section id="result">
+  <div class="result-top">
+    <div id="resultPoster" class="result-poster"></div>
+    <div>
+      <span class="badge">REVERSE REVIEW GENERATED</span>
+      <div id="resultTitle" class="result-title"></div>
+      <div id="resultMeta" class="meta"></div>
+      <div class="score-row">
+        <div id="resultScore" class="reverse-score"></div>
+        <div><div id="resultStars" class="stars"></div><small>completely unnecessary critic consensus</small></div>
+      </div>
+      <div id="resultReview" class="review"></div>
+      <div id="resultTags" class="tags"></div>
+      <div style="margin-top:16px"><button class="shareBtn" onclick="shareResult()">📋 Copy this reverse review</button></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 CineMe — Hackathon Edition</span>
+  <div class="techrow"><span class="techchip">HTML5</span><span class="techchip">CSS3</span><span class="techchip">Vanilla JS</span><span class="techchip">LocalStorage API</span><span class="techchip">Clipboard API</span></div>
+  <span>Made for movie lovers who question everything.</span>
+</footer>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const base = [
+["Interstellar",2014,"Sci-Fi",5,"🚀",["Too Much Science","Space Problems","Slow Burn"],["Three hours of people looking at planets when Google Maps could have saved everyone the trouble.","Black holes, wormholes and time dilation. I came here for entertainment, not homework."]],
+["Titanic",1997,"Romance",5,"🚢",["Poor Parking","Cold Water","Overdramatic"],["Beautiful ship. Terrible parking skills.","Two hours of romance followed by an extremely avoidable swimming lesson."]],
+["Avatar",2009,"Fantasy",4,"🌌",["Too Blue","Visual Overload","Walking"],["Technically impressive, but I remain unconvinced that blue is a personality.","Spent millions on special effects just to make me stare at blue people for three hours."]],
+["The Dark Knight",2008,"Action",5,"🦇",["Too Serious","Bat Problems","Overrated"],["A billionaire in a bat costume takes everything extremely personally.","The villain keeps making speeches. Someone should really tell him to relax."]],
+["Avengers: Endgame",2019,"Action",5,"🦸",["Too Many Heroes","Time Travel","Group Project"],["The solution to every problem is apparently assembling everyone who owns a costume.","Three hours of superheroes proving group projects are dangerous."]],
+["Inception",2010,"Sci-Fi",5,"🌀",["Too Many Dreams","Confusing","Sleep Problems"],["A movie that makes sleeping look like advanced engineering.","I needed a diagram, a notebook and a second viewing just to understand the nap."]],
+["The Matrix",1999,"Sci-Fi",5,"💊",["Too Philosophical","Green Screens","Red Pill"],["Imagine discovering reality is fake and still having to go to work Monday.","Everyone takes pills instead of simply asking customer support."]],
+["Jurassic Park",1993,"Adventure",5,"🦖",["Bad Security","Too Many Dinosaurs","No Fence"],["A theme park with dinosaurs and absolutely no competent IT department.","The dinosaurs aren't the problem. The password policy is."]],
+["The Godfather",1972,"Crime",5,"🍝",["Too Serious","Family Drama","Long"],["An extremely long family meeting where nobody sends a calendar invite.","Apparently every family disagreement requires a dramatic office scene."]],
+["Forrest Gump",1994,"Drama",5,"🏃",["Too Much Running","Accidental Hero","Life Lessons"],["One man runs across America and somehow gets more things done than everyone else.","The man literally just keeps walking and history follows him around."]],
+["The Shawshank Redemption",1994,"Drama",5,"🔓",["Too Long","Hope Overload","Prison"],["A prison movie that somehow turns into a motivational seminar.","Excellent escape plan. Terrible vacation destination."]],
+["Pulp Fiction",1994,"Crime",5,"🍔",["Nonlinear","Too Much Talking","Burger Reviews"],["People discuss burgers with more intensity than most people discuss careers.","A lot of conversations happen before anyone remembers why they entered the room."]],
+["Fight Club",1999,"Drama",5,"🥊",["Bad Advice","Soap Problems","Identity Crisis"],["The first rule of Fight Club is apparently making extremely questionable life choices.","A self-help seminar with punching. HR would have concerns."]],
+["The Lord of the Rings",2001,"Fantasy",5,"💍",["Walking","Too Many Villains","Long Journey"],["An entire trilogy caused by one person refusing to use express delivery.","Middle-earth desperately needed a courier service."]],
+["Harry Potter",2001,"Fantasy",5,"🪄",["Homework","Magic Problems","School Drama"],["A school where students carry dangerous objects and nobody has heard of a safety committee.","Eight movies about a school with unusually poor security."]],
+["The Lion King",1994,"Animation",5,"🦁",["Family Drama","Bad Parenting","Too Emotional"],["A workplace succession dispute featuring lions and one unforgettable uncle.","The kingdom needs HR, not another musical number."]],
+["Toy Story",1995,"Animation",5,"🧸",["Toy Problems","Jealousy","Child Chaos"],["Toys become sentient and immediately develop workplace drama.","Being a toy sounds stressful when your owner can replace you at any moment."]],
+["Frozen",2013,"Animation",4,"❄️",["Too Cold","Sibling Drama","Singing"],["A kingdom freezes because communication skills apparently don't exist.","One family conversation could have saved the entire runtime."]],
+["Spider-Man: No Way Home",2021,"Action",4,"🕷️",["Too Many Spiders","Multiverse","Nostalgia"],["Three Spider-Men walk into a movie and nobody checks whether there are enough parking spaces.","The multiverse has excellent Wi-Fi and terrible boundaries."]],
+["Iron Man",2008,"Action",4,"🤖",["Expensive Toys","Ego","Engineering"],["A billionaire solves personal problems by building increasingly expensive robots.","The real superpower is apparently having an unlimited engineering budget."]],
+["Black Panther",2018,"Action",5,"🐆",["Royal Drama","Fancy Tech","Family Issues"],["A royal succession battle with gadgets that make normal smartphones look embarrassing.","Wakanda has the technology, but apparently not a family group chat."]],
+["Parasite",2019,"Thriller",5,"🏠",["House Problems","Awkward","Social Class"],["A real-estate situation escalates dramatically because nobody read the lease.","The house has more secrets than the residents have common sense."]],
+["Everything Everywhere All at Once",2022,"Sci-Fi",5,"🥯",["Everything","Everywhere","Too Much"],["The title is also the viewing experience. Accurate advertising.","At some point even the multiverse needed a meeting agenda."]],
+["Oppenheimer",2023,"Drama",5,"☢️",["Very Serious","Physics","Long"],["A physics lecture that somehow got a Hollywood budget.","Everyone looks stressed and nobody gets to leave the group project."]],
+["Barbie",2023,"Comedy",4,"💖",["Pink Overload","Plastic Problems","Existential"],["A doll discovers existentialism and immediately needs a management consultant.","The real villain was apparently having complicated feelings."]],
+["Dune",2021,"Sci-Fi",4,"🏜️",["Sand","Very Long","Desert"],["Two and a half hours of people being attacked by geography.","The desert has more screen time than half the cast."]],
+["Gladiator",2000,"Action",5,"⚔️",["Sand Again","Anger","Arena Problems"],["A workplace dispute becomes the world's most expensive sports event.","Performance review went badly. Extremely badly."]],
+["Top Gun: Maverick",2022,"Action",5,"✈️",["Too Fast","Pilots","Ego"],["Aviation training program with a suspicious amount of slow-motion confidence.","Everyone solves communication problems by flying directly at them."]],
+["La La Land",2016,"Romance",4,"🎹",["Too Musical","Jazz Problems","Dancing"],["Two people sing and dance their way into making scheduling look complicated.","Apparently career planning requires choreography."]],
+["Whiplash",2014,"Drama",5,"🥁",["Too Loud","Angry Teacher","Drums"],["A music lesson where the volume setting is permanently stuck on maximum.","The teacher's feedback style could use a softer font."]],
+["Goodfellas",1990,"Crime",5,"🔫",["Too Many Guys","Crime","Italian Food"],["A career documentary for people who should probably choose a different career.","Excellent networking. Terrible long-term benefits."]],
+["The Silence of the Lambs",1991,"Thriller",5,"🦋",["Uncomfortable","Very Quiet","Interviews"],["A job interview that absolutely nobody should have scheduled.","The world's least reassuring career conversation."]],
+["Mad Max: Fury Road",2015,"Action",5,"🏎️",["Too Much Driving","Dust","Chaos"],["Everyone drives for two hours and somehow this counts as a road trip.","Google Maps would simply give up."]],
+["The Social Network",2010,"Drama",4,"💻",["Too Many Emails","Coding","Friendship"],["A friendship ends because someone discovered the 'create company' button.","The real action sequence is refreshing the inbox."]],
+["The Wolf of Wall Street",2013,"Crime",4,"📈",["Too Much Money","Chaos","Bad Decisions"],["A three-hour masterclass in why financial advisors need supervision.","Every decision somehow makes the previous decision look responsible."]],
+["The Prestige",2006,"Mystery",5,"🎩",["Too Many Tricks","Rivalry","Confusing"],["Two magicians spend years proving they can hold grudges professionally.","The real magic trick is keeping track of everyone's secrets."]],
+["Shrek",2001,"Animation",4,"🐴",["Too Much Swamp","Fairy Tales","Donkey"],["A property owner just wants peace and gets a full fairy-tale housing crisis.","The swamp has surprisingly poor neighborhood planning."]],
+["Coco",2017,"Animation",5,"🎸",["Too Emotional","Music","Family"],["A boy visits the afterlife because a family argument needed a sequel.","Excellent music. Extremely complicated family tree."]],
+["Inside Out",2015,"Animation",5,"🧠",["Too Many Feelings","Brain Problems","Emotional"],["Five tiny employees run a brain with absolutely no documented processes.","Someone should really give the emotions a project manager."]],
+["Ratatouille",2007,"Animation",5,"🐀",["Kitchen Chaos","Rats","Cooking"],["A restaurant hires a rat and somehow this is not the strangest thing in Paris.","The health inspector would like a word."]],
+["Your Name",2016,"Anime",5,"☄️",["Confusing","Body Swap","Time"],["Two people swap bodies and immediately discover scheduling is impossible.","Calendar apps cannot solve this one."]],
+["Spirited Away",2001,"Anime",5,"🐉",["Weird Bathhouse","Too Magical","Lost"],["A child enters a magical workplace and gets absolutely no orientation training.","The onboarding process is questionable."]],
+["The Dark Knight Rises",2012,"Action",4,"🦇",["Too Long","Bat Problems","Revenge"],["Batman retires and then discovers retirement apparently has a return policy.","The world's most dramatic comeback tour."]],
+["Mission: Impossible – Fallout",2018,"Action",5,"🕶️",["Impossible Jobs","Running","Stunts"],["A man runs so much that the treadmill industry should sponsor him.","Every mission is impossible because everyone refuses to use email."]],
+["Everything Everywhere All at Once",2022,"Sci-Fi",5,"🥯",["Everything","Everywhere","Chaos"],["The movie asks one simple question: what if every possible thought happened at once? Then does it.","A spreadsheet could not contain this plot."]],
+["The Grand Budapest Hotel",2014,"Comedy",5,"🏨",["Fancy Hotel","Too Pink","Pastries"],["A hotel employee takes customer service so seriously that international chaos follows.","Five-star service, zero-star risk management."]],
+["The Truman Show",1998,"Drama",5,"📺",["Reality TV","Privacy Problems","Too Many Cameras"],["A man discovers his entire life is content and immediately needs to read the privacy policy.","Influencer culture predicted with alarming accuracy."]],
+["The Martian",2015,"Sci-Fi",5,"🌱",["Potatoes","Space Problems","DIY"],["A man gets stranded on Mars and turns survival into an agricultural startup.","NASA accidentally invented the most stressful gardening tutorial."]],
+["Alien",1979,"Horror",5,"👽",["Bad Roommates","Space Horror","No Wi-Fi"],["The worst possible roommate moves in and immediately ignores every house rule.","Space travel needs better tenant screening."]],
+["John Wick",2014,"Action",5,"🐶",["Overreaction","Too Many Rules","Revenge"],["A man starts a multi-city war because someone was rude to his dog.","The world's most extreme HR complaint about workplace etiquette."]],
+["The Avengers",2012,"Action",5,"🦸",["Ego Clash","Group Chat Problems","Property Damage"],["Six egotistical coworkers are forced onto one team-building exercise, and a city pays for it.","Turns out the real villain was everyone's inability to compromise."]],
+["Die Hard",1988,"Action",5,"🏢",["Bad Party Planning","Barefoot Decisions","Office Christmas"],["A man ruins an office Christmas party by refusing to just call security.","The building's elevator maintenance schedule is the real villain."]],
+["Casino Royale",2006,"Action",5,"🃏",["Bad Poker Face","Expensive Suits","Trust Issues"],["A spy loses a poker game and somehow that's the least suspicious thing about his job.","The tuxedo budget alone could fund a small nation."]],
+["Blade Runner 2049",2017,"Sci-Fi",5,"🌆",["Too Moody","Identity Crisis","Rain"],["A detective spends three hours wondering if he's real instead of just checking his ID.","The weather report is permanently set to 'existential drizzle.'"]],
+["Arrival",2016,"Sci-Fi",5,"🛸",["Confusing Grammar","Time Problems","Aliens"],["Aliens land and the biggest challenge turns out to be scheduling a translator.","Linguistics homework with unusually high stakes."]],
+["Guardians of the Galaxy",2014,"Sci-Fi",5,"🦝",["Bad Teamwork","Space Raccoon","Nostalgia"],["A group of criminals bond over a mixtape and somehow that fixes their trust issues.","HR would reject this team-building strategy immediately."]],
+["Star Wars: A New Hope",1977,"Sci-Fi",5,"⚔️",["Family Secrets","Space Politics","Farm Life"],["A farm kid quits his chores and accidentally joins a galactic labor dispute.","The Empire's biggest weakness was apparently a single unguarded vent."]],
+["Back to the Future",1985,"Sci-Fi",5,"🚗",["Time Travel Ethics","Family Drama","Bad Planning"],["A teenager accidentally interferes with his parents' relationship and calls it Tuesday.","Nobody in this family has heard of minding their own business."]],
+["Pan's Labyrinth",2006,"Fantasy",5,"🧚",["Scary Fairies","Bad Stepfather","Homework"],["A girl escapes a terrible household by doing extra credit for a faun.","The real monster is clearly the paperwork."]],
+["The Chronicles of Narnia",2005,"Fantasy",4,"🦁",["Wardrobe Problems","Endless Winter","Talking Animals"],["Four siblings enter a closet and somehow that's the least strange part of the story.","The wardrobe has genuinely terrible real estate potential."]],
+["Up",2009,"Animation",5,"🎈",["Balloon Overuse","Grief","Uninvited Guest"],["A retiree solves his housing crisis with several thousand balloons and zero permits.","The homeowners' association would have so many questions."]],
+["Finding Nemo",2003,"Animation",5,"🐠",["Overprotective Parenting","Ocean Problems","Bad Memory"],["A father crosses an entire ocean because he won't let his kid go to school alone.","Marine GPS technology remains criminally underused."]],
+["WALL-E",2008,"Animation",5,"🤖",["Trash Problems","Too Much Screen Time","Loneliness"],["A robot falls in love while humanity forgets how to use its own legs.","The cruise ship Wi-Fi plan was clearly too good."]],
+["Zootopia",2016,"Animation",5,"🐰",["Office Politics","Bias","Small Town Dreams"],["A rookie cop discovers the workplace is more complicated than the crime.","The real mystery is why nobody filed a proper incident report."]],
+["Spider-Man: Into the Spider-Verse",2018,"Animation",5,"🕸️",["Multiverse Mayhem","Teen Problems","Too Many Spider-People"],["A teenager gets superpowers and immediately has to deal with worse scheduling conflicts.","Six different dimensions and still nobody has good Wi-Fi."]],
+["Superbad",2007,"Comedy",4,"🍺",["Bad Planning","Fake ID","High School Chaos"],["Two teenagers plan a party with the strategic competence of a collapsing startup.","The fake ID alone deserves its own investigation."]],
+["Bridesmaids",2011,"Comedy",4,"👰",["Wedding Stress","Rivalry","Bad Toasts"],["A maid of honor turns wedding planning into a full-contact competitive sport.","The cake alone caused more damage than most action movies."]],
+["The Hangover",2009,"Comedy",4,"🐯",["Bad Memory","Bachelor Party Chaos","Missing Groom"],["A bachelor party goes so wrong that amnesia is somehow the least of their problems.","Vegas hospitality has never faced a more thorough audit."]],
+["Ferris Bueller's Day Off",1986,"Comedy",5,"🎓",["Skipping School","Elaborate Lying","Sibling Rivalry"],["A teenager fakes an illness with the planning precision of a heist film.","School attendance policy has never been more thoroughly defeated."]],
+["A Beautiful Mind",2001,"Drama",5,"🧮",["Too Many Numbers","Trust Issues","Overthinking"],["A brilliant mathematician discovers that reality also needs to be peer-reviewed.","The whiteboard budget alone could fund a small university."]],
+["Good Will Hunting",1997,"Drama",5,"🧹",["Wasted Potential","Bad Attitude","Therapy Avoidance"],["A janitor solves complex equations but refuses to solve his own scheduling conflicts.","MIT's hallway security remains questionable at best."]],
+["The Pursuit of Happyness",2006,"Drama",5,"💼",["Bad Housing","Career Change","Long Days"],["A man juggles fatherhood, homelessness and an unpaid internship like it's a normal Tuesday.","Corporate HR could really use better intern accommodations."]],
+["Green Book",2018,"Drama",4,"🚗",["Long Road Trip","Culture Clash","Bad Directions"],["Two men on a road trip discover that GPS wasn't the only thing needing directions.","The car alone deserves hazard pay."]],
+["Notting Hill",1999,"Romance",4,"📚",["Bad Timing","Fame Problems","Bookshop Drama"],["A bookshop owner dates a movie star and somehow the paperwork is the easy part.","Fame turns out to be a terrible plus-one for a quiet dinner."]],
+["The Notebook",2004,"Romance",4,"📖",["Overdramatic Letters","Class Differences","Rain"],["A summer romance produces enough handwritten letters to start a small postal service.","The rain machine budget alone could rebuild a town."]],
+["Pride & Prejudice",2005,"Romance",5,"💌",["Miscommunication","Family Pressure","Bad First Impressions"],["An entire plot could be resolved with one honest conversation and nobody has one.","Regency-era small talk turns out to be a full contact sport."]],
+["Se7en",1995,"Thriller",5,"📦",["Bad Roommates","Grim Puzzles","Terrible Endings"],["Two detectives learn that some deliveries should never, ever be opened.","The world's worst performance review, delivered in a cardboard box."]],
+["Gone Girl",2014,"Thriller",5,"📝",["Bad Marriage","Elaborate Planning","Media Circus"],["A missing wife turns out to have better project management skills than most companies.","Marriage counseling was clearly never on the table here."]],
+["Shutter Island",2010,"Thriller",5,"🏝️",["Trust Issues","Bad Memory","Confusing Island"],["A detective visits an island and slowly realizes the real mystery is his own paperwork.","The ferry schedule alone would drive anyone to madness."]],
+["Get Out",2017,"Horror",5,"🌀",["Bad In-Laws","Hypnosis","Awkward Dinner"],["A guy meets his girlfriend's family and immediately regrets skipping the background check.","Family dinners have never needed a safety briefing more."]],
+["A Quiet Place",2018,"Horror",5,"🤫",["No Talking Allowed","Bad Acoustics","Family Stress"],["A family survives an apocalypse mostly by finally learning to communicate less.","Sign language enrollment has never been more urgent."]],
+["The Conjuring",2013,"Horror",4,"🕯️",["Bad Real Estate","Haunted House","Poor Inspections"],["A family buys a house without ever once checking its very obvious paranormal history.","The home inspector clearly skipped several important rooms."]],
+["The Departed",2006,"Crime",5,"🚓",["Double Lives","Trust Issues","Bad Undercover Work"],["Two undercover agents infiltrate each other's lives and somehow nobody notices for years.","Workplace identity verification remains a serious institutional failure."]],
+["Heat",1995,"Crime",5,"💰",["Bad Retirement Plan","Cat and Mouse","Overtime"],["A cop and a criminal share the same terrible work-life balance and call it a rivalry.","Neither of them has taken a single vacation day."]],
+["The Greatest Showman",2017,"Musical",4,"🎪",["Too Much Singing","Big Dreams","Family Pressure"],["A man starts a business with zero permits and an unreasonable amount of choreography.","The insurance liability alone should have ended the show early."]],
+["Mamma Mia!",2008,"Musical",4,"🏖️",["Too Many Dads","Wedding Chaos","Spontaneous Singing"],["A bride invites three possible fathers to her wedding and somehow everyone just sings about it.","DNA testing would have saved this entire island a lot of trouble."]],
+["1917",2019,"War",5,"🎖️",["Too Much Walking","Bad Communication","Time Pressure"],["Two soldiers deliver a message across a warzone because nobody thought to try a phone.","The world's most dramatic and least efficient delivery service."]],
+["Free Solo",2018,"Documentary",5,"🧗",["No Safety Gear","Extreme Hobbies","Bad Insurance Decisions"],["A man climbs a giant rock with absolutely no rope, and somehow that's the whole plan.","His insurance agent deserves a documentary of their own."]],
+["Paddington",2014,"Family",5,"🧸",["Bad Manners","Marmalade Obsession","Immigration Paperwork"],["A polite bear moves in with a family and still manages to cause more chaos than most villains.","The marmalade budget alone should raise questions."]],
+["Home Alone",1990,"Family",5,"🏠",["Bad Parenting","Booby Traps","Forgotten Child"],["A family forgets their child at home and he responds by building a small war zone.","Local law enforcement really should have been called much sooner."]],
+["My Neighbor Totoro",1988,"Anime",5,"🌳",["Imaginary Friends","Forest Problems","Bus Stop Chaos"],["Two kids befriend a giant forest spirit instead of just telling an adult about it.","The regional bus system has never had a stranger passenger."]],
+["Demon Slayer: Mugen Train",2020,"Anime",5,"🚂",["Bad Sleep Schedule","Train Problems","Too Many Demons"],["A group of warriors board a train and immediately regret skipping the safety briefing.","Public transit has never had a worse boarding experience."]],
+["Amélie",2001,"Comedy",5,"🎨",["Overthinking","Secret Plans","Shyness"],["A woman fixes everyone's life through elaborate secret schemes instead of just talking to them.","Paris has never seen this much unnecessary but charming meddling."]],
+["Rocky",1976,"Sports",5,"🥊",["Overtraining","Bad Odds","Stubbornness"],["An underdog trains obsessively for a fight he was never supposed to win, and mostly just wants respect.","The raw egg breakfast alone should be a public health concern."]],
+["Moneyball",2011,"Sports",4,"⚾",["Spreadsheets","Bad Odds","Office Politics"],["A baseball team gets rebuilt entirely through spreadsheets, much to everyone's confusion.","Scouting reports have never been this aggressively mathematical."]],
+["Drishyam",2013,"Mystery",5,"🏠",["Home Renovation","Alibi Skills","Family Loyalty"],["A father solves a family crisis with home renovation timelines so precise that contractors everywhere should be taking notes.","The local police department's biggest opponent turns out to be a really well-planned weekend schedule."],"Malayalam"],
+["Bangalore Days",2014,"Drama",5,"🏙️",["City Life","Family Group Chat","Relationship Drama"],["Three cousins move to the city and discover that adulting mostly means more complicated relationship statuses.","Everyone's love life could have been simplified with one honest family dinner."],"Malayalam"],
+["Premam",2015,"Romance",5,"💐",["Bad Timing","Falling in Love Repeatedly","Growing Up"],["A man falls in love on a schedule so consistent you could set a calendar reminder by it.","Three different decades, three different crushes, zero improvement in timing."],"Malayalam"],
+["Kumbalangi Nights",2019,"Drama",5,"🎣",["Messy Roommates","Family Business","Fishing Village"],["Four brothers share one house and prove that sibling group chats can absolutely end in real consequences.","The fishing business runs smoother than literally any of their personal relationships."],"Malayalam"],
+["Charlie",2015,"Adventure",4,"🎨",["Mysterious Roommate","Wanderlust","Messy Apartment"],["A woman spends the whole movie chasing down a guy who apparently forgot to leave a forwarding address.","The apartment's previous tenant left behind more mystery than most detective novels."],"Malayalam"],
+["Ustad Hotel",2012,"Drama",5,"🍽️",["Family Business","Secret Recipe","Career Change"],["A young man quits his fancy career plans because his grandfather's biryani recipe had better job security.","The real plot twist is that kitchen apprenticeships are apparently more emotionally rewarding than an MBA."],"Malayalam"],
+["Lucifer",2019,"Action",4,"🕴️",["Family Business Succession","Political Drama","Bodyguard Problems"],["A political family's succession planning meeting somehow requires this many bodyguards.","Boardroom drama, but everyone happens to also be extremely good at hand-to-hand combat."],"Malayalam"],
+["Jallikattu",2019,"Thriller",5,"🐃",["Runaway Livestock","Village Chaos","Poor Fencing"],["One escaped buffalo causes more property damage across a village than most disaster movies manage with ten times the budget.","The real lesson here is that everyone in this village should really invest in better fencing."],"Malayalam"],
+["Manjummel Boys",2024,"Adventure",5,"🕳️",["Bad Trip Planning","Friend Group Chaos","Cave Trouble"],["A friend group trip goes sideways fast, and the group chat afterward must have been absolute chaos.","Proof that 'let's just wing it' is not a survival strategy for cave exploration."],"Malayalam"],
+["Nna Thaan Case Kodu",2022,"Comedy",4,"⚖️",["Small Town Legal Drama","Stubbornness","Local Politics"],["A minor dispute turns into a full courtroom saga because nobody involved knows how to let things go.","The local court system has never seen this much drama over something this small."],"Malayalam"],
+["Romancham",2023,"Horror",4,"👻",["Bad Roommate Decisions","Ouija Board","Group Panic"],["A group of roommates try a spooky game for fun and immediately regret every decision that led to that evening.","The scariest part is honestly how many of them thought this was a good idea in the first place."],"Malayalam"],
+["Aavesham",2024,"Comedy",4,"🎭",["College Drama","Hired Muscle","Unlikely Friendship"],["A group of college freshmen hire local muscle to solve their problems and get way more mentorship than requested.","Turns out the scariest guy in town just really wanted some friends."],"Malayalam"],
+["Dilwale Dulhania Le Jayenge",1995,"Romance",5,"🚂",["Long Courtship","Family Approval","Train Chases"],["A man spends the entire movie trying to get one family's approval instead of just booking an earlier train.","A European backpacking trip turns into the world's longest job interview for a future father-in-law."],"Hindi"],
+["3 Idiots",2009,"Comedy",5,"🎓",["College Chaos","Exam Stress","Life Philosophy"],["Three engineering students redefine the entire syllabus as a philosophical crisis about happiness.","The dean's office has never dealt with this much creative interpretation of academic rules."],"Hindi"],
+["Lagaan",2001,"Sports",5,"🏏",["Tax Dispute","High Stakes Cricket","Village Unity"],["A village resolves an entire tax dispute with one extremely long game of cricket, which seems like a lot of admin to avoid a form.","The world's most consequential sports match, and somehow nobody thought to just negotiate the tax rate."],"Hindi"],
+["Dangal",2016,"Sports",5,"🤼",["Strict Parenting","Wrestling Training","Small Town Dreams"],["A father trains his daughters into wrestling champions with a parenting style that would make most PTA meetings uncomfortable.","The alarm clock in this house has never once been allowed to be ignored."],"Hindi"],
+["Zindagi Na Milegi Dobara",2011,"Drama",5,"✈️",["Extreme Bachelor Trip","Friendship Therapy","Bad Secrets"],["Three friends turn a bachelor trip into unlicensed group therapy somewhere over Spain.","This vacation itinerary doubles as the world's most expensive intervention."],"Hindi"],
+["Gully Boy",2019,"Drama",4,"🎤",["Career Change","Underdog Story","Family Pressure"],["A driver discovers rap is a more reliable career plan than his family initially expected, which says a lot about the family meetings.","The neighborhood's open-mic nights have never had this much riding on them."],"Hindi"],
+["Andhadhun",2018,"Thriller",5,"🎹",["Bad Timing","Piano Practice","Witness Problems"],["A pianist witnesses a crime at possibly the single worst moment of his entire career.","Piano recitals have never come with this many unexpected liability issues."],"Hindi"],
+["Queen",2013,"Drama",5,"🧳",["Solo Honeymoon","Breakup Recovery","Self Discovery"],["A jilted bride takes her honeymoon alone and turns out to be significantly better company for herself than her ex ever was.","European tour operators should really be paying her for this level of unplanned promotion."],"Hindi"],
+["RRR",2022,"Action",5,"🔥",["Friendship Goals","Property Damage","Colonial Politics"],["Two friends take on an empire and leave behind a property damage bill that no insurance company would ever cover.","The friendship is genuinely inspiring; the structural engineering casualties, less so."],"Hindi"],
+["Baahubali: The Beginning",2015,"Action",5,"🗿",["Kingdom Succession","Impossible Waterfalls","Family Secrets"],["A kingdom's succession planning is so mismanaged that someone ends up carrying a statue up a waterfall to prove a point.","HR departments everywhere should study this family's approach to executive transitions as a cautionary tale."],"Hindi"],
+["Swades",2004,"Drama",5,"🌾",["Career Detour","Rural Infrastructure","Homecoming"],["A NASA engineer visits his old village for a short trip and accidentally ends up redesigning its entire power grid.","The world's most overqualified volunteer electrician."],"Hindi"],
+["Munna Bhai MBBS",2003,"Comedy",5,"🩺",["Fake Medical Degree","Bedside Manner","College Scandal"],["A gangster fakes his way into medical school and somehow turns out to have better bedside manner than the actual doctors.","Medical school admissions have never faced quite this level of unconventional review."],"Hindi"]
+];
+
+const movies = base.map((m,i)=>({title:m[0],year:m[1],genre:m[2],real:m[3],emoji:m[4],tags:m[5],reviews:m[6],lang:m[7]||"English",id:i}));
+const colors=[["#43263c","#18273f"],["#57321f","#142c2a"],["#243b68","#351c4d"],["#5b2929","#222a45"],["#3b294f","#153b42"],["#46371e","#202e4b"]];
+let activeGenre="All", activeLang="All", favorites=JSON.parse(localStorage.getItem("cinemeFavorites")||"[]");
+
+const grid=document.getElementById("movieGrid");
+const filters=document.getElementById("filters");
+const langFilters=document.getElementById("langFilters");
+const datalist=document.getElementById("movieNames");
+document.getElementById("movieCount").textContent=movies.length;
+datalist.innerHTML=movies.map(m=>`<option value="${m.title}">`).join("");
+
+const genres=["All",...new Set(movies.map(m=>m.genre))];
+filters.innerHTML=genres.map(g=>`<button class="filter genre-filter ${g==="All"?"active":""}" onclick="setFilter('${g}')">${g}</button>`).join("");
+document.getElementById("genreCount").textContent=genres.length-1;
+
+const languages=["All Languages",...new Set(movies.map(m=>m.lang))];
+langFilters.innerHTML=languages.map(l=>`<button class="filter lang-filter ${l==="All Languages"?"active":""}" onclick="setLangFilter('${l}')">${l}</button>`).join("");
+
+document.addEventListener("keydown",e=>{
+ if(e.key==="/"&&document.activeElement!==document.getElementById("movieInput")){
+  e.preventDefault();
+  document.getElementById("movieInput").focus();
+ }
+});
+
+function esc(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function render(){
+ let list=activeGenre==="All"?movies:movies.filter(m=>m.genre===activeGenre);
+ if(activeLang!=="All Languages")list=list.filter(m=>m.lang===activeLang);
+ document.getElementById("showing").textContent=`Showing ${list.length} movies`;
+ grid.innerHTML=list.map((m,i)=>{
+   const fav=favorites.includes(m.id);
+   const c=colors[m.id%colors.length];
+   return `<article class="movie">
+    <div class="cover" style="--c1:${c[0]};--c2:${c[1]}"><small>${m.year}</small>${m.emoji}</div>
+    <div class="movie-info"><h3>${esc(m.title)}</h3><div class="meta">${m.genre} · ${m.lang} · ${m.real}/5 actual</div>
+    <div class="movie-actions"><button class="iconbtn" onclick="generateById(${m.id})">Reverse</button><button class="iconbtn" onclick="toggleFav(${m.id})">${fav?"♥ Saved":"♡ Save"}</button></div></div>
+   </article>`;
+ }).join("");
+ document.getElementById("favCount").textContent=favorites.length;
+}
+function setFilter(g){
+ activeGenre=g;
+ document.querySelectorAll(".genre-filter").forEach(b=>b.classList.toggle("active",b.textContent===g));
+ render();
+}
+function setLangFilter(l){
+ activeLang=l;
+ document.querySelectorAll(".lang-filter").forEach(b=>b.classList.toggle("active",b.textContent===l));
+ render();
+}
+function findMovie(q){
+ q=q.trim().toLowerCase();
+ if(!q)return null;
+ return movies.find(m=>m.title.toLowerCase()===q)||movies.find(m=>m.title.toLowerCase().includes(q));
+}
+function stars(n){return "★".repeat(n)+"☆".repeat(5-n)}
+function generateReview(){
+ const m=findMovie(document.getElementById("movieInput").value);
+ if(!m){toast("Movie not in the catalogue yet 😭");return}
+ generate(m);
+}
+function generateById(id){generate(movies.find(m=>m.id===id))}
+let lastResult=null;
+function generate(m){
+ const resultEl=document.getElementById("result");
+ resultEl.style.display="block";
+ resultEl.innerHTML=`<div class="analyzing"><div class="spinner"></div>Flipping the critic consensus for "${esc(m.title)}"…</div>`;
+ resultEl.scrollIntoView({behavior:"smooth",block:"center"});
+ setTimeout(()=>renderResult(m),550);
+}
+function renderResult(m){
+ document.getElementById("result").innerHTML=`
+  <div class="result-top">
+    <div id="resultPoster" class="result-poster"></div>
+    <div>
+      <span class="badge">REVERSE REVIEW GENERATED</span>
+      <div id="resultTitle" class="result-title"></div>
+      <div id="resultMeta" class="meta"></div>
+      <div class="score-row">
+        <div id="resultScore" class="reverse-score"></div>
+        <div><div id="resultStars" class="stars"></div><small>completely unnecessary critic consensus</small></div>
+      </div>
+      <div id="resultReview" class="review"></div>
+      <div id="resultTags" class="tags"></div>
+      <div style="margin-top:16px"><button class="shareBtn" onclick="shareResult()">📋 Copy this reverse review</button></div>
+    </div>
+  </div>`;
+ const reverse=Math.floor(Math.random()*5)+1;
+ const review=m.reviews[Math.floor(Math.random()*m.reviews.length)];
+ const wrong=Math.min(99,Math.abs(m.real-reverse)*24+Math.floor(Math.random()*31));
+ const c=colors[m.id%colors.length];
+ document.getElementById("result").style.setProperty("--c1",c[0]);
+ document.getElementById("result").style.setProperty("--c2",c[1]);
+ document.getElementById("resultPoster").style.setProperty("--c1",c[0]);
+ document.getElementById("resultPoster").style.setProperty("--c2",c[1]);
+ document.getElementById("resultPoster").textContent=m.emoji;
+ document.getElementById("resultTitle").textContent=m.title;
+ document.getElementById("resultMeta").textContent=`${m.year} · ${m.genre} · ${m.lang} · Actual reputation: ${stars(m.real)}`;
+ document.getElementById("resultScore").textContent=`${reverse}/5`;
+ document.getElementById("resultStars").textContent=stars(reverse);
+ document.getElementById("resultReview").textContent=`“${review}”`;
+ document.getElementById("resultTags").innerHTML=[...m.tags].sort(()=>Math.random()-.5).slice(0,3).map(t=>`<span class="tag">#${esc(t)}</span>`).join("")+`<span class="tag">#${wrong}%Wrong</span>`;
+ lastResult=`${m.emoji} ${m.title} (${m.year}) — CineMe reverse score: ${reverse}/5 ${stars(reverse)}\n"${review}"\n#${wrong}%Wrong — via CineMe`;
+}
+function shareResult(){
+ if(!lastResult){toast("Generate a review first!");return}
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(lastResult).then(()=>toast("Copied to clipboard 📋")).catch(()=>toast("Couldn't copy — try manually selecting the text"));
+ }else{
+  toast("Clipboard not supported in this browser");
+ }
+}
+function toggleFav(id){
+ if(favorites.includes(id))favorites=favorites.filter(x=>x!==id); else favorites.push(id);
+ localStorage.setItem("cinemeFavorites",JSON.stringify(favorites));
+ render(); toast(favorites.includes(id)?"Saved to favorites ♥":"Removed from favorites");
+}
+function showFavorites(){
+ const fav=movies.filter(m=>favorites.includes(m.id));
+ if(!fav.length){toast("No favorites yet — save a movie first!");return}
+ activeGenre="__fav"; document.querySelectorAll(".filter").forEach(b=>b.classList.remove("active"));
+ document.getElementById("showing").textContent=`Showing ${fav.length} favorites`;
+ grid.innerHTML=fav.map(m=>`<article class="movie"><div class="cover" style="--c1:${colors[m.id%6][0]};--c2:${colors[m.id%6][1]}">${m.emoji}</div><div class="movie-info"><h3>${esc(m.title)}</h3><div class="meta">${m.year} · ${m.genre} · ${m.lang}</div><div class="movie-actions"><button class="iconbtn" onclick="generateById(${m.id})">Reverse</button><button class="iconbtn" onclick="toggleFav(${m.id})">♥ Saved</button></div></div></article>`).join("");
+ document.getElementById("discover").scrollIntoView({behavior:"smooth"});
+}
+function randomMovie(){generate(movies[Math.floor(Math.random()*movies.length)])}
+function scrollToSection(id){document.getElementById(id).scrollIntoView({behavior:"smooth"})}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.style.display="block";clearTimeout(window.tt);window.tt=setTimeout(()=>t.style.display="none",1800)}
+render();
+</script>
+</body>
+</html>
